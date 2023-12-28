@@ -30,6 +30,8 @@ pub mod counter {
 pub struct Initialize<'info> {
     #[account(
       init,
+      seeds = [authority.key().as_ref()],
+      bump,
       payer = authority,
       space = 48,
     )]
