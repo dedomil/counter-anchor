@@ -15,12 +15,18 @@ pub mod counter {
 
     pub fn increment(ctx: Context<Increment>) -> Result<()> {
         let counter: &mut Account<Counter> = &mut ctx.accounts.counter;
+        if counter.count == u64::MAX {
+            return Err(error!(CounterError::CannotIncrement));
+        }
         counter.count += 1;
         Ok(())
     }
 
     pub fn decrement(ctx: Context<Decrement>) -> Result<()> {
         let counter: &mut Account<Counter> = &mut ctx.accounts.counter;
+        if counter.count == u64::MIN {
+            return Err(error!(CounterError::CannotDecrement));
+        }
         counter.count -= 1;
         Ok(())
     }
@@ -67,4 +73,12 @@ pub struct Decrement<'info> {
 pub struct Counter {
     pub authority: Pubkey,
     pub count: u64,
+}
+
+#[error_code]
+pub enum CounterError {
+    #[msg("cannot decrement below zero")]
+    CannotDecrement,
+    #[msg("cannot increment as size limit exceeded")]
+    CannotIncrement,
 }
